@@ -15,10 +15,34 @@
                      // .style('fill', 'black');
                      .append('circle')
                      .attr({cx: function(){return Math.random() * 700}, cy: function(){return Math.random() * 400}, r: 10, d: 'M150 0 L75 200 L225 200 Z'})
-                     .style('fill', 'black');
+                     .style('fill', 'darkred');
+
+  var bulletTime = board.append('circle')
+                        .attr({cx: function(){return Math.random() * 700}, cy: function(){return Math.random() * 400}, r: 10})
+                        .style('fill', 'lightgreen');
 
   var drag = d3.behavior.drag().on('drag', function(){
-    player.attr({cx: d3.event.x, cy: d3.event.y});
+    var x = d3.event.x;
+    var y = d3.event.y;
+
+    if(x > 700){
+      x = 690;
+    }
+    if(x < 0){
+      x = 10;
+    }
+    if(y > 400){
+      y = 390;
+    }
+    if(y < 0){
+      y = 10;
+    }
+    if (Math.abs(x - bulletTime.attr('cx')) <= 20 && Math.abs(y - bulletTime.attr('cy')) <= 20) {
+      stepInterval = 3000;
+      // clearInterval(stepper);
+      // stepper = setInterval(randomStep, stepInterval);
+    }
+    player.attr({cx: x, cy: y});
   });
 
   var player = board.append('circle')
@@ -27,7 +51,7 @@
                     cy: '200',
                     r: '10'
                   })
-                  .style('fill', 'red')
+                  .style('fill', 'steelblue')
                   .call(drag);
 
   var innerCheckCollision = function(){
@@ -67,7 +91,14 @@
            Math.abs(d3.select(enemy).attr('cy') - player.attr('cy')) <= 20;
   }
 
-  setInterval(randomStep, stepInterval);
+  var stepper = function(interval){
+    setTimeout(function(){
+      randomStep();
+      stepper(stepInterval);
+    }, interval);
+  };
+
+  stepper(stepInterval);
 
   var currentScore = 0;
   var highScore = 0;
