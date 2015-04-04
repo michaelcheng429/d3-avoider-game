@@ -72,6 +72,16 @@
         .tween('collisionDetection', app.listenForCollision);
     },
 
+    // Returns true when player collides with an enemy
+    checkCollisionLogic: function(enemy){
+      var enemyX = d3.select(enemy).attr('cx');
+      var enemyY = d3.select(enemy).attr('cy');
+      var playerX = player.attr('cx');
+      var playerY = player.attr('cy');
+      return Math.abs(enemyX - playerX) <= 20 &&
+        Math.abs(enemyY - playerY) <= 20;
+    },
+
     // Continuously listen for collisions during "tween" of transition
     listenForCollision: function(){
       // Check every millisecond for collisions
@@ -157,16 +167,6 @@
       }, interval);
     },
 
-    // Returns true when player collides with an enemy
-    checkCollisionLogic: function(enemy){
-      var enemyX = d3.select(enemy).attr('cx');
-      var enemyY = d3.select(enemy).attr('cy');
-      var playerX = player.attr('cx');
-      var playerY = player.attr('cy');
-      return Math.abs(enemyX - playerX) <= 20 &&
-        Math.abs(enemyY - playerY) <= 20;
-    },
-
     // Change border color on event
     changeBorderColor: function(color, wait){
       wait = wait || 1000;
@@ -175,6 +175,34 @@
       setTimeout(function(){
         board.style('border', '10px solid black');
       }, wait);
+    },
+
+    // Listen for new high score
+    listenForNewHighScore: function() {
+      setInterval(function(){
+        initialSettings.currentScore++;
+        if(initialSettings.currentScore === initialSettings.highScore){
+          app.changeBorderColor('gold', 1500);
+          board.append('text')
+            .attr({
+              x: '86px', 
+              y: '180px', 
+              class: 'new-high-score'
+            })
+            .style({
+              'font-size': '80px', 
+              'font-weight':'bold', 
+              'letter-spacing': '-6px', 
+              'opacity':'0.3', 
+              'fill': 'gold'
+            })
+            .text('New High Score');
+        setTimeout(function(){
+          board.selectAll('.new-high-score').data([]).exit().remove();
+        }, 1500);
+        }
+        d3.select('.current span').text(initialSettings.currentScore);
+      }, 50);
     }
 
   };
@@ -258,21 +286,7 @@
 
   app.listenForStepIntervalChanges(initialSettings.stepInterval);
 
-
-
-  setInterval(function(){
-    initialSettings.currentScore++;
-    if(initialSettings.currentScore === initialSettings.highScore){
-      app.changeBorderColor('gold', 1500);
-      board.append('text').attr({x: '86px', y: '180px', class: 'new-high-score'})
-           .style({'font-size': '80px', 'font-weight':'bold', 'letter-spacing': '-6px', 'opacity':'0.3', 'fill': 'gold'})
-           .text('New High Score');
-      setTimeout(function(){
-        board.selectAll('.new-high-score').data([]).exit().remove();
-      }, 1500);
-    }
-    d3.select('.current span').text(initialSettings.currentScore);
-  }, 50);
+  app.listenForNewHighScore();
 
 })();
 
