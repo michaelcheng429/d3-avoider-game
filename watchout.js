@@ -1,21 +1,36 @@
 // start slingin' some d3 here.
 
 (function(){
+
+  var submitButton = d3.select('.submit');
+  var numEnemies = 10;
+  submitButton.on('click', function() {
+    numEnemies = document.getElementById('numberOfEnemies').value;
+
+    board.selectAll('.enemy').data([]).exit().remove();
+
+    enemies = createEnemies(numEnemies);
+  });
+
   var stepInterval = 1500;
 
   var board = d3.select('#board').append('svg')
                 .attr({width: '700px', height: '400px'})
                 .style('border', '10px solid black');
 
-  var enemies = board.selectAll('.enemy')
-                     .data(d3.range(10))
+  var createEnemies = function(numEnemies) {
+    return board.selectAll('.enemy')
+                     .data(d3.range(numEnemies))
                      .enter()
                      // .append('image')
                      // .attr({x: function(){return Math.random() * 700}, y: function(){return Math.random() * 400}, width: '30px', height: '30px', 'xlink:href': 'shuriken.png'})
                      // .style('fill', 'black');
                      .append('circle')
-                     .attr({cx: function(){return Math.random() * 700}, cy: function(){return Math.random() * 400}, r: 10, d: 'M150 0 L75 200 L225 200 Z'})
+                     .attr({class: 'enemy', cx: function(){return Math.random() * 700}, cy: function(){return Math.random() * 400}, r: 10})
                      .style('fill', 'darkred');
+  }
+
+  var enemies = createEnemies(numEnemies);
 
   var createBulletTime = function(){
     return board.append('circle')
@@ -42,7 +57,7 @@
       y = 10;
     }
     if (Math.abs(x - bulletTime.attr('cx')) <= 20 && Math.abs(y - bulletTime.attr('cy')) <= 20) {
-      stepInterval += 1500;
+      stepInterval += 250;
       board.selectAll('.bullet-time').data([]).exit().remove();
       bulletTime = createBulletTime();
     }
@@ -113,6 +128,9 @@
     currentScore++;
     d3.select('.current span').text(currentScore);
   }, 50);
-})();
 
+
+
+  
+})();
 
