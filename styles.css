@@ -9,6 +9,12 @@ Feel free to use it if you like. */
   height: 401px;
 }
 
+#metrics{
+  width: 600px;
+  margin: auto;
+  margin-top: 100px; 
+}
+
 .scoreboard{
   width: 701px;
   margin: auto;

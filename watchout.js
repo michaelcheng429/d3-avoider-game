@@ -15,7 +15,7 @@
     currentScore: 0,
     highScore: 0,
     collisionCount: 0,
-    numEnemies: 15
+    numEnemies: 1
   };
 
   /*
@@ -327,6 +327,9 @@
 
   // Listen for green orb collection and losing to update stepInterval
   app.listenForStepIntervalChanges(initialSettings.stepInterval);
+
+
+  data.push({tryCount: 100, score: 200});
 
 })();
 
