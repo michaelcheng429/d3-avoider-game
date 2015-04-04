@@ -136,7 +136,7 @@
 
         data.push({score: initialSettings.currentScore, tryCount: initialSettings.collisionCount});
         console.log(JSON.stringify(data));
-
+        renderGraph();
         // d3.select('.enemy-speed span').text(100);
         // d3.select('.enemy-speed').style('color', 'darkred');
       }

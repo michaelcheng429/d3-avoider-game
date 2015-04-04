@@ -33,15 +33,15 @@
   */
 
   function getMaxObjectValue(this_array, element) {
-      var values = [];
-   
-      for (var i = 0; i < this_array.length; i++) {
-          values.push(Math.ceil(parseFloat(this_array[i][""+element])));
+    var max = 0;
+
+    for(var i = 0; i < this_array.length; i++){
+      if(this_array[i][element] > max){
+        max = this_array[i][element];
       }
-   
-      values.sort(function(a,b){return a-b});
-   
-      return values[values.length-1];
+    }
+
+    return max;
   }
    
   function getMinObjectValue(this_array, element) {
@@ -82,13 +82,17 @@
       .attr("height", height + margin.top + margin.bottom)
       .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  var getMaxScore = function(){
+    return getMaxObjectValue(data, 'score');
+  };
    
   var y = d3.scale.linear()
-      .domain([ minObjectValue - (.1 * minObjectValue) , maxObjectValue + (.1 * maxObjectValue)])
-      .range([height, 0]),
-  x = d3.scale.linear()
-      .domain([0, 300])
-      .range([0, width]);
+          .domain([ 0, getMaxScore()])
+          .range([height, 0]),
+      x = d3.scale.linear()
+          .domain([0, 10])
+          .range([0, 300]);
 
   /*
   *
@@ -139,6 +143,73 @@
       *
       */
 
+    renderGraph = function(){
+      d3.select('#metrics').selectAll('svg').data([]).exit().remove();
+
+      var width = 500, height = 500;
+   
+      var margin = {top: 30, right: 10, bottom: 40, left: 60},
+          width = width - margin.left - margin.right,
+          height = height - margin.top - margin.bottom;
+       
+      var minDate = (data[0].tryCount),
+          maxDate = data[data.length-1].tryCount;
+          minObjectValue = getMinObjectValue(data, 'score');
+          maxObjectValue = getMaxObjectValue(data, 'score');
+       
+      //create the graph object
+      var vis= d3.select("#metrics").append("svg")
+          .data(data)
+          .attr("class", "metrics-container")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      y = d3.scale.linear()
+          .domain([ 0, getMaxScore()])
+          .range([height, 0]),
+      x = d3.scale.linear()
+          .domain([0, 10])
+          .range([0, 300]);
+
+      var yAxis = d3.svg.axis()
+      .scale(y)
+      .orient("left")
+      .ticks(5);
+   
+      var xAxis = d3.svg.axis()
+          .scale(x)
+          .orient("bottom")
+          .ticks(5);
+       
+      vis.append("g")
+          .attr("class", "axis")
+          .call(yAxis);
+       
+      vis.append("g")
+          .attr("class", "axis")
+          .attr("transform", "translate(0," + height + ")")
+          .call(xAxis);
+       
+      //add the axes labels
+      vis.append("text")
+          .attr("class", "axis-label")
+          .attr("text-anchor", "end")
+          .attr("x", 200)
+          .attr("y", height + 34)
+          .text('Avoider Tries')
+          .style({'font-weight': 'bold'});
+       
+      vis.append("text")
+          .attr("class", "axis-label")
+          .attr("text-anchor", "end")
+          .attr("y", 6)
+          .attr("dy", "-3.4em")
+          .attr("transform", "rotate(-90)")
+          .text('Score')
+          .style({'font-weight': 'bold'});
+
       var line = d3.svg.line()
           .x(function(d) { return x(d.tryCount); })
           .y(function(d) { return y(d["score"]); })
@@ -150,6 +221,9 @@
           })
           .style("fill", "none")
           .style("stroke-width", "2.5");
+    }
+
+    renderGraph();
 
     /*
     *
