@@ -60,6 +60,10 @@
       stepInterval += 250;
       board.selectAll('.bullet-time').data([]).exit().remove();
       bulletTime = createBulletTime();
+      notify('lightgreen');
+      var percentage = Math.floor((1500 / stepInterval) * 100);
+      d3.select('.enemy-speed span').text(percentage);
+      d3.select('.enemy-speed').style('color', 'lightgreen');
     }
     player.attr({cx: x, cy: y});
   });
@@ -84,6 +88,9 @@
       if(currentScore > 10){
         collisionCount++;
         d3.select('.collisions span').text(collisionCount);
+        notify('red');
+        d3.select('.enemy-speed span').text(100);
+        d3.select('.enemy-speed').style('color', 'darkred');
       }
       
       currentScore = 0;
@@ -91,6 +98,13 @@
       stepInterval = 1500;
     }
   };
+
+  var notify = function(color){
+    board.style('border', '10px solid ' + color);
+    setTimeout(function(){
+      board.style('border', '10px solid black');
+    }, 1000);
+  }
 
   var randomStep = function() {
     enemies.transition().duration(stepInterval)
@@ -129,8 +143,12 @@
     d3.select('.current span').text(currentScore);
   }, 50);
 
-
-
-  
 })();
+
+
+//something notifying when you get hit.
+//something notifying when you get bullettime
+//a # showing how much bullettime you've gained
+//when you get bullettime a quote pops up.
+
 
