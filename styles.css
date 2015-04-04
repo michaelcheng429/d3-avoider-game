@@ -10,7 +10,7 @@ Feel free to use it if you like. */
 }
 
 #metrics{
-  width: 600px;
+  width: 500px;
   margin: auto;
   margin-top: 100px; 
 }
@@ -67,4 +67,8 @@ body {
 
 .enemy-speed {
   color: darkred;
+}
+
+.metrics-header {
+  text-align: center;
 }

@@ -15,7 +15,7 @@
     currentScore: 0,
     highScore: 0,
     collisionCount: 0,
-    numEnemies: 1
+    numEnemies: 20
   };
 
   /*
@@ -135,7 +135,6 @@
         app.changeBorderColor('red');
 
         data.push({score: initialSettings.currentScore, tryCount: initialSettings.collisionCount});
-        console.log(JSON.stringify(data));
         renderGraph();
         // d3.select('.enemy-speed span').text(100);
         // d3.select('.enemy-speed').style('color', 'darkred');
