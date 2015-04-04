@@ -158,6 +158,19 @@
         .style('fill', 'lightgreen');
     },
 
+    // Change border to green when green orb is collected
+    listenForBulletTimeCollection: function(x, y) {
+      if (Math.abs(x - bulletTime.attr('cx')) <= 20 && Math.abs(y - bulletTime.attr('cy')) <= 20) {
+        initialSettings.stepInterval += 250;
+        board.selectAll('.bullet-time-board').data([]).exit().remove();
+        bulletTime = app.createBulletTime();
+        app.changeBorderColor('lightgreen');
+        var percentage = Math.floor((1500 / initialSettings.stepInterval) * 100);
+        d3.select('.enemy-speed span').text(percentage);
+        d3.select('.enemy-speed').style('color', 'lightgreen');
+      }
+    },
+
     // Update step interval when green orb is collected
     // and when player loses
     listenForStepIntervalChanges: function(interval){
@@ -178,31 +191,43 @@
     },
 
     // Listen for new high score
-    listenForNewHighScore: function() {
+    scoreCounter: function() {
       setInterval(function(){
         initialSettings.currentScore++;
-        if(initialSettings.currentScore === initialSettings.highScore){
-          app.changeBorderColor('gold', 1500);
-          board.append('text')
-            .attr({
-              x: '86px', 
-              y: '180px', 
-              class: 'new-high-score'
-            })
-            .style({
-              'font-size': '80px', 
-              'font-weight':'bold', 
-              'letter-spacing': '-6px', 
-              'opacity':'0.3', 
-              'fill': 'gold'
-            })
-            .text('New High Score');
+
+        d3.select('.current span').text(initialSettings.currentScore);
+        
+        app.listenForNewHighScore();
+        
+      }, 50);
+    },
+
+    // Change border color and display message when new high score is reached
+    listenForNewHighScore: function() {
+      // If new high score is reached
+      if(initialSettings.currentScore === initialSettings.highScore){
+        // Change border color
+        app.changeBorderColor('gold', 1500);
+        // Display "New High Score" message
+        board.append('text')
+          .attr({
+            x: '86px', 
+            y: '180px', 
+            class: 'new-high-score'
+          })
+          .style({
+            'font-size': '80px', 
+            'font-weight':'bold', 
+            'letter-spacing': '-6px', 
+            'opacity':'0.3', 
+            'fill': 'gold'
+          })
+          .text('New High Score');
+        // Reset border and message after 1.5 seconds
         setTimeout(function(){
           board.selectAll('.new-high-score').data([]).exit().remove();
         }, 1500);
-        }
-        d3.select('.current span').text(initialSettings.currentScore);
-      }, 50);
+      }
     }
 
   };
@@ -224,12 +249,7 @@
     enemies = app.createEnemies(numEnemies);
   });
 
-  /*
-  *
-  * Initialize game board
-  *
-  */
-
+  // Initialize game board
   var board = d3.select('#board')
                 .append('svg')
                 .attr({
@@ -238,13 +258,10 @@
                 })
                 .style('border', '10px solid black');
 
-
-  
-
-  
-
+  // Initialize enemies
   var enemies = app.createEnemies(numEnemies);
 
+  // Initialize green orb (bulletTime)
   var bulletTime = app.createBulletTime();
 
   var drag = d3.behavior.drag().on('drag', function(){
@@ -263,15 +280,8 @@
     if(y < 0){
       y = 10;
     }
-    if (Math.abs(x - bulletTime.attr('cx')) <= 20 && Math.abs(y - bulletTime.attr('cy')) <= 20) {
-      initialSettings.stepInterval += 250;
-      board.selectAll('.bullet-time-board').data([]).exit().remove();
-      bulletTime = app.createBulletTime();
-      app.changeBorderColor('lightgreen');
-      var percentage = Math.floor((1500 / initialSettings.stepInterval) * 100);
-      d3.select('.enemy-speed span').text(percentage);
-      d3.select('.enemy-speed').style('color', 'lightgreen');
-    }
+
+    app.listenForBulletTimeCollection(x,y);
     player.attr({cx: x, cy: y});
   });
 
@@ -286,7 +296,7 @@
 
   app.listenForStepIntervalChanges(initialSettings.stepInterval);
 
-  app.listenForNewHighScore();
+  app.scoreCounter();
 
 })();
 
