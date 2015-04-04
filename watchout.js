@@ -267,13 +267,8 @@
 
   };
 
-  /*
-  *
-  * Customize number of enemies on the board
-  *
-  */
+  // Customize number of enemies on the board
   var submitButton = d3.select('.submit');
-
   submitButton.on('click', app.updateNumberOfEnemies);
 
   // Initialize game board
