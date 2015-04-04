@@ -4,17 +4,102 @@
 
   /*
   *
-  * Store initial variables
+  * Initial variables
   *
   */
 
   var initialSettings = {
-    width: '700px',
-    height: '400px',
+    width: 700,
+    height: 400,
     stepInterval: 1500,
     currentScore: 0,
     highScore: 0,
     collisionCount: 0
+  };
+
+  /*
+  *
+  * Function factory
+  *
+  */
+
+  var app = {
+
+    // Sets random x-coordinate
+    randomX: function() {
+      return initialSettings.width * Math.random();
+    },
+
+    // Sets random y-coordinate
+    randomY: function() {
+      return initialSettings.height * Math.random();
+    },
+
+    // Creates a given number of enemies
+    createEnemies: function(numEnemies) {
+      return board.selectAll('.enemy')
+        .data(d3.range(numEnemies))
+        .enter()
+        .append('circle')
+        .attr({
+          class: 'enemy', 
+          cx: function(){
+            return app.randomX();
+          }, 
+          cy: function(){
+            return app.randomY();
+          }, 
+          r: 10})
+        .style('fill', 'darkred');
+        // .append('image')
+        // .attr({x: function(){return app.randomX()}, y: function(){return app.randomY()}, width: '30px', height: '30px', 'xlink:href': 'shuriken.png'})
+        // .style('fill', 'black');
+    },
+
+    // Transitions enemies to another random spot on the board
+    randomStep: function() {
+      enemies.transition()
+        .duration(initialSettings.stepInterval)
+        .attr({
+          cx: function(){
+            return app.randomX();
+          }, 
+          cy: function(){
+            return app.randomY();
+          }
+        })
+        .tween('collisionDetection', function(){
+          var check = setInterval(innerCheckCollision.bind(this), 1);
+          setTimeout(function(){
+            clearInterval(check);
+          }, initialSettings.stepInterval);
+        });
+    },
+
+    // Creates a green orb that slows down enemies
+    createBulletTime: function(){
+      return board.append('circle')
+        .attr({
+          // Class used to remove orb later when collected
+          class: 'bullet-time-board', 
+          cx: function(){
+            return app.randomX();
+          }, 
+          cy: function(){
+            return app.randomY()
+          }, 
+          r: 10
+        })
+        .style('fill', 'lightgreen');
+    },
+
+    listenForStepIntervalChanges: function(interval){
+      setTimeout(function(){
+        app.randomStep();
+        app.listenForStepIntervalChanges(initialSettings.stepInterval);
+      }, interval);
+    }
+
   };
 
   /*
@@ -31,49 +116,43 @@
     // Remove all enemies from the board
     board.selectAll('.enemy').data([]).exit().remove();
     // Call createEnemies to repopulate board with new number of enemies
-    enemies = createEnemies(numEnemies);
+    enemies = app.createEnemies(numEnemies);
   });
 
-  var board = d3.select('#board').append('svg')
+  /*
+  *
+  * Initialize game board
+  *
+  */
+
+  var board = d3.select('#board')
+                .append('svg')
                 .attr({
-                  width: '700px', 
-                  height: '400px'
+                  width: initialSettings.width + 'px', 
+                  height: initialSettings.height + 'px'
                 })
                 .style('border', '10px solid black');
 
-  var createEnemies = function(numEnemies) {
-    return board.selectAll('.enemy')
-                     .data(d3.range(numEnemies))
-                     .enter()
-                     // .append('image')
-                     // .attr({x: function(){return Math.random() * 700}, y: function(){return Math.random() * 400}, width: '30px', height: '30px', 'xlink:href': 'shuriken.png'})
-                     // .style('fill', 'black');
-                     .append('circle')
-                     .attr({class: 'enemy', cx: function(){return Math.random() * 700}, cy: function(){return Math.random() * 400}, r: 10})
-                     .style('fill', 'darkred');
-  }
 
-  var enemies = createEnemies(numEnemies);
+  
 
-  var createBulletTime = function(){
-    return board.append('circle')
-           .attr({class: 'bullet-time', cx: function(){return Math.random() * 700}, cy: function(){return Math.random() * 400}, r: 10})
-           .style('fill', 'lightgreen');
-  };
+  
 
-  var bulletTime = createBulletTime();
+  var enemies = app.createEnemies(numEnemies);
+
+  var bulletTime = app.createBulletTime();
 
   var drag = d3.behavior.drag().on('drag', function(){
     var x = d3.event.x;
     var y = d3.event.y;
 
-    if(x > 700){
+    if(x > initialSettings.width){
       x = 690;
     }
     if(x < 0){
       x = 10;
     }
-    if(y > 400){
+    if(y > initialSettings.height){
       y = 390;
     }
     if(y < 0){
@@ -81,8 +160,8 @@
     }
     if (Math.abs(x - bulletTime.attr('cx')) <= 20 && Math.abs(y - bulletTime.attr('cy')) <= 20) {
       initialSettings.stepInterval += 250;
-      board.selectAll('.bullet-time').data([]).exit().remove();
-      bulletTime = createBulletTime();
+      board.selectAll('.bullet-time-board').data([]).exit().remove();
+      bulletTime = app.createBulletTime();
       notify('lightgreen');
       var percentage = Math.floor((1500 / initialSettings.stepInterval) * 100);
       d3.select('.enemy-speed span').text(percentage);
@@ -131,33 +210,12 @@
     }, wait);
   }
 
-  var randomStep = function() {
-    enemies.transition().duration(initialSettings.stepInterval)
-      .attr({
-        cx: function(){return Math.random() * 700}, 
-        cy: function(){return Math.random() * 400}
-      })
-      .tween('collisionDetection', function(){
-        var check = setInterval(innerCheckCollision.bind(this), 1);
-        setTimeout(function(){
-          clearInterval(check);
-        }, initialSettings.stepInterval);
-      });
-  };
-
   var checkCollision = function(enemy){
     return Math.abs(d3.select(enemy).attr('cx') - player.attr('cx')) <= 20 &&
            Math.abs(d3.select(enemy).attr('cy') - player.attr('cy')) <= 20;
   }
 
-  var stepper = function(interval){
-    setTimeout(function(){
-      randomStep();
-      stepper(initialSettings.stepInterval);
-    }, interval);
-  };
-
-  stepper(initialSettings.stepInterval);
+  app.listenForStepIntervalChanges(initialSettings.stepInterval);
 
 
 
