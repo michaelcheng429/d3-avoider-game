@@ -99,11 +99,13 @@
     }
   };
 
-  var notify = function(color){
+  var notify = function(color, wait){
+    wait = wait || 1000;
+
     board.style('border', '10px solid ' + color);
     setTimeout(function(){
       board.style('border', '10px solid black');
-    }, 1000);
+    }, wait);
   }
 
   var randomStep = function() {
@@ -140,15 +142,17 @@
 
   setInterval(function(){
     currentScore++;
+    if(currentScore === highScore){
+      notify('gold', 1500);
+      board.append('text').attr({x: '86px', y: '180px', class: 'new-high-score'})
+           .style({'font-size': '80px', 'font-weight':'bold', 'letter-spacing': '-6px', 'opacity':'0.3', 'fill': 'gold'})
+           .text('New High Score');
+      setTimeout(function(){
+        board.selectAll('.new-high-score').data([]).exit().remove();
+      }, 1500);
+    }
     d3.select('.current span').text(currentScore);
   }, 50);
 
 })();
-
-
-//something notifying when you get hit.
-//something notifying when you get bullettime
-//a # showing how much bullettime you've gained
-//when you get bullettime a quote pops up.
-
 
