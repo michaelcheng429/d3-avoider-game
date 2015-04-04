@@ -83,12 +83,12 @@
       .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-  var getMaxScore = function(){
-    return getMaxObjectValue(data, 'score');
+  var getMaxNum = function(prop){
+    return getMaxObjectValue(data, prop);
   };
    
   var y = d3.scale.linear()
-          .domain([ 0, getMaxScore()])
+          .domain([ 0, getMaxNum('score')])
           .range([height, 0]),
       x = d3.scale.linear()
           .domain([0, 10])
@@ -167,10 +167,10 @@
           .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
       y = d3.scale.linear()
-          .domain([ 0, getMaxScore()])
+          .domain([ 0, getMaxNum('score')])
           .range([height, 0]),
       x = d3.scale.linear()
-          .domain([0, 10])
+          .domain([0, getMaxNum('tryCount')])
           .range([0, 300]);
 
       var yAxis = d3.svg.axis()
