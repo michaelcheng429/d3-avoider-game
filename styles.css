@@ -72,3 +72,8 @@ body {
 .metrics-header {
   text-align: center;
 }
+
+p {
+  color: grey;
+  letter-spacing: -0.5px;
+}
