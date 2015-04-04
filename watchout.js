@@ -15,7 +15,8 @@
     currentScore: 0,
     highScore: 0,
     collisionCount: 0,
-    numEnemies: 20
+    numEnemies: 7,
+    level: 1
   };
 
   /*
@@ -24,7 +25,7 @@
   *
   */
 
-  var app = {
+  app = {
 
     // Sets random x-coordinate
     randomX: function() {
@@ -106,8 +107,8 @@
         app.resetEnemySpeedElement();
 
         app.resetCurrentScoreAndStepInterVal();
-      
 
+        d3.select('.level-count span').text(initialSettings.level);
       }
     },
 
@@ -145,6 +146,10 @@
     resetEnemySpeedElement: function() {
       d3.select('.enemy-speed span').text(100);
       d3.select('.enemy-speed').style('color', 'darkred');
+      initialSettings.level = 1;
+      initialSettings.numEnemies = 7;
+      d3.selectAll('.enemy').data([]).exit().remove();
+      enemies = app.createEnemies(initialSettings.numEnemies);
     },
 
     // Creates a green orb that slows down enemies
@@ -197,8 +202,9 @@
     // Update "Enemy Speed" element and change color when green orb is collected
     updateEnemySpeedElement: function() {
       var percentage = Math.floor((1500 / initialSettings.stepInterval) * 100);
+      var color = percentage < 100 ? 'lightgreen' : 'darkred';
       d3.select('.enemy-speed span').text(percentage);
-      d3.select('.enemy-speed').style('color', 'lightgreen');
+      d3.select('.enemy-speed').style('color', color);
     },
 
     // Update step interval when green orb is collected
@@ -268,6 +274,16 @@
       board.selectAll('.enemy').data([]).exit().remove();
       // Call createEnemies to repopulate board with new number of enemies
       enemies = app.createEnemies(initialSettings.numEnemies);
+    },
+
+    increaseLevel: function(){
+      initialSettings.numEnemies++;
+      initialSettings.level++;
+      d3.select('.level-count span').text(initialSettings.level);
+      app.createEnemies(initialSettings.numEnemies);
+      enemies = board.selectAll('.enemy');
+      initialSettings.stepInterval = initialSettings.stepInterval * 0.75;
+      app.updateEnemySpeedElement();
     }
 
   };
@@ -326,6 +342,10 @@
                   })
                   .style('fill', 'steelblue')
                   .call(drag);
+
+  var levelInterval = setInterval(function(){
+    app.increaseLevel();
+  }, 10000);
 
   // Initialize score counter
   app.scoreCounter();
