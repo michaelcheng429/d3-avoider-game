@@ -2,20 +2,43 @@
 
 (function(){
 
+  /*
+  *
+  * Store initial variables
+  *
+  */
+
+  var initialSettings = {
+    width: '700px',
+    height: '400px',
+    stepInterval: 1500,
+    currentScore: 0,
+    highScore: 0,
+    collisionCount: 0
+  };
+
+  /*
+  *
+  * Customize number of enemies on the board
+  *
+  */
   var submitButton = d3.select('.submit');
+  // Initialize number of enemies to 15
   var numEnemies = 15;
   submitButton.on('click', function() {
+    // Get input value from DOM
     numEnemies = document.getElementById('numberOfEnemies').value;
-
+    // Remove all enemies from the board
     board.selectAll('.enemy').data([]).exit().remove();
-
+    // Call createEnemies to repopulate board with new number of enemies
     enemies = createEnemies(numEnemies);
   });
 
-  var stepInterval = 1500;
-
   var board = d3.select('#board').append('svg')
-                .attr({width: '700px', height: '400px'})
+                .attr({
+                  width: '700px', 
+                  height: '400px'
+                })
                 .style('border', '10px solid black');
 
   var createEnemies = function(numEnemies) {
@@ -57,11 +80,11 @@
       y = 10;
     }
     if (Math.abs(x - bulletTime.attr('cx')) <= 20 && Math.abs(y - bulletTime.attr('cy')) <= 20) {
-      stepInterval += 250;
+      initialSettings.stepInterval += 250;
       board.selectAll('.bullet-time').data([]).exit().remove();
       bulletTime = createBulletTime();
       notify('lightgreen');
-      var percentage = Math.floor((1500 / stepInterval) * 100);
+      var percentage = Math.floor((1500 / initialSettings.stepInterval) * 100);
       d3.select('.enemy-speed span').text(percentage);
       d3.select('.enemy-speed').style('color', 'lightgreen');
     }
@@ -79,23 +102,23 @@
 
   var innerCheckCollision = function(){
     if(checkCollision(this)){
-      if(currentScore > highScore){
-        highScore = currentScore;
-        d3.select('.high span').text(highScore);
+      if(initialSettings.currentScore > initialSettings.highScore){
+        initialSettings.highScore = initialSettings.currentScore;
+        d3.select('.high span').text(initialSettings.highScore);
       }
 
       //only gets hit once per half second max
-      if(currentScore > 10){
-        collisionCount++;
-        d3.select('.collisions span').text(collisionCount);
+      if(initialSettings.currentScore > 10){
+        initialSettings.collisionCount++;
+        d3.select('.collisions span').text(initialSettings.collisionCount);
         notify('red');
         d3.select('.enemy-speed span').text(100);
         d3.select('.enemy-speed').style('color', 'darkred');
       }
       
-      currentScore = 0;
-      d3.select('.current span').text(currentScore);
-      stepInterval = 1500;
+      initialSettings.currentScore = 0;
+      d3.select('.current span').text(initialSettings.currentScore);
+      initialSettings.stepInterval = 1500;
     }
   };
 
@@ -109,7 +132,7 @@
   }
 
   var randomStep = function() {
-    enemies.transition().duration(stepInterval)
+    enemies.transition().duration(initialSettings.stepInterval)
       .attr({
         cx: function(){return Math.random() * 700}, 
         cy: function(){return Math.random() * 400}
@@ -118,7 +141,7 @@
         var check = setInterval(innerCheckCollision.bind(this), 1);
         setTimeout(function(){
           clearInterval(check);
-        }, stepInterval);
+        }, initialSettings.stepInterval);
       });
   };
 
@@ -130,19 +153,17 @@
   var stepper = function(interval){
     setTimeout(function(){
       randomStep();
-      stepper(stepInterval);
+      stepper(initialSettings.stepInterval);
     }, interval);
   };
 
-  stepper(stepInterval);
+  stepper(initialSettings.stepInterval);
 
-  var currentScore = 0;
-  var highScore = 0;
-  var collisionCount= 0;
+
 
   setInterval(function(){
-    currentScore++;
-    if(currentScore === highScore){
+    initialSettings.currentScore++;
+    if(initialSettings.currentScore === initialSettings.highScore){
       notify('gold', 1500);
       board.append('text').attr({x: '86px', y: '180px', class: 'new-high-score'})
            .style({'font-size': '80px', 'font-weight':'bold', 'letter-spacing': '-6px', 'opacity':'0.3', 'fill': 'gold'})
@@ -151,7 +172,7 @@
         board.selectAll('.new-high-score').data([]).exit().remove();
       }, 1500);
     }
-    d3.select('.current span').text(currentScore);
+    d3.select('.current span').text(initialSettings.currentScore);
   }, 50);
 
 })();
