@@ -149,6 +149,7 @@
       initialSettings.level = 1;
       initialSettings.numEnemies = 7;
       d3.selectAll('.enemy').data([]).exit().remove();
+      d3.select('.enemy-count span').text(initialSettings.numEnemies);
       enemies = app.createEnemies(initialSettings.numEnemies);
     },
 
@@ -280,6 +281,7 @@
       initialSettings.numEnemies++;
       initialSettings.level++;
       d3.select('.level-count span').text(initialSettings.level);
+      d3.select('.enemy-count span').text(initialSettings.numEnemies);
       app.createEnemies(initialSettings.numEnemies);
       enemies = board.selectAll('.enemy');
       initialSettings.stepInterval = initialSettings.stepInterval * 0.75;
