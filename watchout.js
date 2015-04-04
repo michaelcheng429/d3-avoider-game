@@ -14,7 +14,8 @@
     stepInterval: 1500,
     currentScore: 0,
     highScore: 0,
-    collisionCount: 0
+    collisionCount: 0,
+    numEnemies: 15
   };
 
   /*
@@ -38,7 +39,7 @@
     // Creates a given number of enemies
     createEnemies: function(numEnemies) {
       return board.selectAll('.enemy')
-        .data(d3.range(numEnemies))
+        .data(d3.range(initialSettings.numEnemies))
         .enter()
         .append('circle')
         .attr({
@@ -170,7 +171,7 @@
         app.slowDownEnemies();
 
         app.spawnNewBulletTime();
-        
+
         app.changeBorderColor('lightgreen');
 
         app.updateEnemySpeedElement();
@@ -254,6 +255,16 @@
       }
     },
 
+    // Update number of enemies based on form submission
+    updateNumberOfEnemies: function() {
+      // Get input value from DOM
+      initialSettings.numEnemies = document.getElementById('numberOfEnemies').value;
+      // Remove all enemies from the board
+      board.selectAll('.enemy').data([]).exit().remove();
+      // Call createEnemies to repopulate board with new number of enemies
+      enemies = app.createEnemies(initialSettings.numEnemies);
+    }
+
   };
 
   /*
@@ -262,16 +273,8 @@
   *
   */
   var submitButton = d3.select('.submit');
-  // Initialize number of enemies to 15
-  var numEnemies = 15;
-  submitButton.on('click', function() {
-    // Get input value from DOM
-    numEnemies = document.getElementById('numberOfEnemies').value;
-    // Remove all enemies from the board
-    board.selectAll('.enemy').data([]).exit().remove();
-    // Call createEnemies to repopulate board with new number of enemies
-    enemies = app.createEnemies(numEnemies);
-  });
+
+  submitButton.on('click', app.updateNumberOfEnemies);
 
   // Initialize game board
   var board = d3.select('#board')
@@ -283,11 +286,12 @@
                 .style('border', '10px solid black');
 
   // Initialize enemies
-  var enemies = app.createEnemies(numEnemies);
+  var enemies = app.createEnemies(initialSettings.numEnemies);
 
   // Initialize green orb (bulletTime)
   var bulletTime = app.createBulletTime();
 
+  // Initialize mouse drag for player
   var drag = d3.behavior.drag().on('drag', function(){
     var x = d3.event.x;
     var y = d3.event.y;
@@ -313,6 +317,7 @@
     app.listenForBulletTimeCollection(x,y);
   });
 
+  // Initialize player
   var player = board.append('circle')
                   .attr({
                     cx: '350',
@@ -322,9 +327,11 @@
                   .style('fill', 'steelblue')
                   .call(drag);
 
-  app.listenForStepIntervalChanges(initialSettings.stepInterval);
-
+  // Initialize score counter
   app.scoreCounter();
+
+  // Listen for green orb collection and losing to update stepInterval
+  app.listenForStepIntervalChanges(initialSettings.stepInterval);
 
 })();
 
