@@ -7,7 +7,7 @@
   *
   */
 
-  data = [{tryCount: 0, score: 10}];
+  data = [{tryCount: 0, score: 0}];
   // this is our data array
    
   var startingDate = new Date(2012, 8, 18);
@@ -166,12 +166,13 @@
           .append("g")
           .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+      var maxTry = getMaxNum('tryCount') > 5 ? getMaxNum('tryCount') : 5;
       y = d3.scale.linear()
-          .domain([ 0, getMaxNum('score')])
-          .range([height, 0]),
+          .domain([ 0, getMaxNum('score') * 1.2])
+          .range([430, 0]),
       x = d3.scale.linear()
-          .domain([0, getMaxNum('tryCount')])
-          .range([0, 300]);
+          .domain([0, maxTry])
+          .range([0, 430]);
 
       var yAxis = d3.svg.axis()
       .scale(y)
@@ -217,7 +218,7 @@
       vis.append("svg:path")
           .attr("d", line(data))
           .style("stroke", function() {
-              return "#000000";
+              return "gold";
           })
           .style("fill", "none")
           .style("stroke-width", "2.5");
