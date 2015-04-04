@@ -3,7 +3,7 @@
 (function(){
 
   var submitButton = d3.select('.submit');
-  var numEnemies = 10;
+  var numEnemies = 15;
   submitButton.on('click', function() {
     numEnemies = document.getElementById('numberOfEnemies').value;
 
