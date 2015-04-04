@@ -8,3 +8,37 @@ Feel free to use it if you like. */
   width: 701px;
   height: 401px;
 }
+
+.scoreboard{
+  width: 701px;
+  margin: auto;
+  font-size: 24px;
+  font-weight: bold;
+  letter-spacing: -1px;
+
+}
+
+h1{
+  font-size: 80px;
+  text-align: center;
+  font-weight: bold;
+  line-height: 0.2;
+  letter-spacing: -4px;
+}
+
+h3{
+  font-size: 30px;
+  color: grey;
+  text-align: center;
+  margin-top: -20px;
+  letter-spacing: -1.5px;
+  font-weight: normal;
+}
+
+body {
+  font-family: arial, sans-serif;
+}
+
+.input-section {
+  float: right;
+}
