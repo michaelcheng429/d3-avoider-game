@@ -98,6 +98,7 @@
       // If there is a collision
       if(app.checkCollisionLogic(this)){
 
+        
         app.updateHighScore();
 
         app.updateCollisionCount();
@@ -106,6 +107,7 @@
 
         app.resetCurrentScoreAndStepInterVal();
       
+
       }
     },
 
@@ -131,6 +133,10 @@
         initialSettings.collisionCount++;
         d3.select('.collisions span').text(initialSettings.collisionCount);
         app.changeBorderColor('red');
+
+        data.push({score: initialSettings.currentScore, tryCount: initialSettings.collisionCount});
+        console.log(JSON.stringify(data));
+
         // d3.select('.enemy-speed span').text(100);
         // d3.select('.enemy-speed').style('color', 'darkred');
       }
@@ -328,8 +334,6 @@
   // Listen for green orb collection and losing to update stepInterval
   app.listenForStepIntervalChanges(initialSettings.stepInterval);
 
-
-  data.push({tryCount: 100, score: 200});
 
 })();
 
