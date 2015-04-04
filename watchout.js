@@ -68,12 +68,67 @@
             return app.randomY();
           }
         })
-        .tween('collisionDetection', function(){
-          var check = setInterval(innerCheckCollision.bind(this), 1);
-          setTimeout(function(){
-            clearInterval(check);
-          }, initialSettings.stepInterval);
-        });
+        // Listens for collisions during transitions
+        .tween('collisionDetection', app.listenForCollision);
+    },
+
+    // Continuously listen for collisions during "tween" of transition
+    listenForCollision: function(){
+      // Check every millisecond for collisions
+      var check = setInterval(app.responseToCollision.bind(this), 1);
+      // Prevents setIntervals from building up
+      setTimeout(function(){
+        clearInterval(check);
+      }, initialSettings.stepInterval);
+    },
+
+    // Response when collisions is detected
+    responseToCollision: function(){
+      // If there is a collision
+      if(app.checkCollisionLogic(this)){
+
+        app.updateHighScore();
+
+        app.updateCollisionCount();
+
+        app.resetEnemySpeedElement();
+
+        app.resetCurrentScoreAndStepInterVal();
+      
+      }
+    },
+
+    // Reset current score to 0, reset stepInterval to 1500
+    resetCurrentScoreAndStepInterVal: function() {
+      initialSettings.currentScore = 0;
+      d3.select('.current span').text(initialSettings.currentScore);
+      initialSettings.stepInterval = 1500;
+    },
+
+    // Update if there is new high score
+    updateHighScore: function() {
+      // Update scoreboard if there is a new high score
+      if(initialSettings.currentScore > initialSettings.highScore){
+        initialSettings.highScore = initialSettings.currentScore;
+        d3.select('.high span').text(initialSettings.highScore);
+      }
+    },
+
+    // Update collision count
+    updateCollisionCount: function() {
+      if(initialSettings.currentScore > 10){
+        initialSettings.collisionCount++;
+        d3.select('.collisions span').text(initialSettings.collisionCount);
+        app.changeBorderColor('red');
+        // d3.select('.enemy-speed span').text(100);
+        // d3.select('.enemy-speed').style('color', 'darkred');
+      }
+    },
+
+    // Reset "Enemy Speed" element to 100% and dark red
+    resetEnemySpeedElement: function() {
+      d3.select('.enemy-speed span').text(100);
+      d3.select('.enemy-speed').style('color', 'darkred');
     },
 
     // Creates a green orb that slows down enemies
@@ -93,11 +148,33 @@
         .style('fill', 'lightgreen');
     },
 
+    // Update step interval when green orb is collected
+    // and when player loses
     listenForStepIntervalChanges: function(interval){
       setTimeout(function(){
         app.randomStep();
         app.listenForStepIntervalChanges(initialSettings.stepInterval);
       }, interval);
+    },
+
+    // Returns true when player collides with an enemy
+    checkCollisionLogic: function(enemy){
+      var enemyX = d3.select(enemy).attr('cx');
+      var enemyY = d3.select(enemy).attr('cy');
+      var playerX = player.attr('cx');
+      var playerY = player.attr('cy');
+      return Math.abs(enemyX - playerX) <= 20 &&
+        Math.abs(enemyY - playerY) <= 20;
+    },
+
+    // Change border color on event
+    changeBorderColor: function(color, wait){
+      wait = wait || 1000;
+
+      board.style('border', '10px solid ' + color);
+      setTimeout(function(){
+        board.style('border', '10px solid black');
+      }, wait);
     }
 
   };
@@ -162,7 +239,7 @@
       initialSettings.stepInterval += 250;
       board.selectAll('.bullet-time-board').data([]).exit().remove();
       bulletTime = app.createBulletTime();
-      notify('lightgreen');
+      app.changeBorderColor('lightgreen');
       var percentage = Math.floor((1500 / initialSettings.stepInterval) * 100);
       d3.select('.enemy-speed span').text(percentage);
       d3.select('.enemy-speed').style('color', 'lightgreen');
@@ -179,42 +256,6 @@
                   .style('fill', 'steelblue')
                   .call(drag);
 
-  var innerCheckCollision = function(){
-    if(checkCollision(this)){
-      if(initialSettings.currentScore > initialSettings.highScore){
-        initialSettings.highScore = initialSettings.currentScore;
-        d3.select('.high span').text(initialSettings.highScore);
-      }
-
-      //only gets hit once per half second max
-      if(initialSettings.currentScore > 10){
-        initialSettings.collisionCount++;
-        d3.select('.collisions span').text(initialSettings.collisionCount);
-        notify('red');
-        d3.select('.enemy-speed span').text(100);
-        d3.select('.enemy-speed').style('color', 'darkred');
-      }
-      
-      initialSettings.currentScore = 0;
-      d3.select('.current span').text(initialSettings.currentScore);
-      initialSettings.stepInterval = 1500;
-    }
-  };
-
-  var notify = function(color, wait){
-    wait = wait || 1000;
-
-    board.style('border', '10px solid ' + color);
-    setTimeout(function(){
-      board.style('border', '10px solid black');
-    }, wait);
-  }
-
-  var checkCollision = function(enemy){
-    return Math.abs(d3.select(enemy).attr('cx') - player.attr('cx')) <= 20 &&
-           Math.abs(d3.select(enemy).attr('cy') - player.attr('cy')) <= 20;
-  }
-
   app.listenForStepIntervalChanges(initialSettings.stepInterval);
 
 
@@ -222,7 +263,7 @@
   setInterval(function(){
     initialSettings.currentScore++;
     if(initialSettings.currentScore === initialSettings.highScore){
-      notify('gold', 1500);
+      app.changeBorderColor('gold', 1500);
       board.append('text').attr({x: '86px', y: '180px', class: 'new-high-score'})
            .style({'font-size': '80px', 'font-weight':'bold', 'letter-spacing': '-6px', 'opacity':'0.3', 'fill': 'gold'})
            .text('New High Score');
