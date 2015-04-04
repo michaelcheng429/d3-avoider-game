@@ -159,16 +159,40 @@
     },
 
     // Change border to green when green orb is collected
-    listenForBulletTimeCollection: function(x, y) {
-      if (Math.abs(x - bulletTime.attr('cx')) <= 20 && Math.abs(y - bulletTime.attr('cy')) <= 20) {
-        initialSettings.stepInterval += 250;
-        board.selectAll('.bullet-time-board').data([]).exit().remove();
-        bulletTime = app.createBulletTime();
+    listenForBulletTimeCollection: function(playerX, playerY) {
+
+      var bulletTimeX = bulletTime.attr('cx');
+      var bulletTimeY = bulletTime.attr('cy');
+
+      if (Math.abs(playerX - bulletTimeX) <= 20 && 
+        Math.abs(playerY - bulletTimeY) <= 20) {
+
+        app.slowDownEnemies();
+
+        app.spawnNewBulletTime();
+        
         app.changeBorderColor('lightgreen');
-        var percentage = Math.floor((1500 / initialSettings.stepInterval) * 100);
-        d3.select('.enemy-speed span').text(percentage);
-        d3.select('.enemy-speed').style('color', 'lightgreen');
+
+        app.updateEnemySpeedElement();
       }
+    },
+
+    // Slows down enemies by increasing transition interval
+    slowDownEnemies: function() {
+      initialSettings.stepInterval += 250;
+    },
+
+    // Spawn new green orb in new spot
+    spawnNewBulletTime: function() {
+      board.selectAll('.bullet-time-board').data([]).exit().remove();
+      bulletTime = app.createBulletTime();
+    },
+
+    // Update "Enemy Speed" element and change color when green orb is collected
+    updateEnemySpeedElement: function() {
+      var percentage = Math.floor((1500 / initialSettings.stepInterval) * 100);
+      d3.select('.enemy-speed span').text(percentage);
+      d3.select('.enemy-speed').style('color', 'lightgreen');
     },
 
     // Update step interval when green orb is collected
@@ -228,7 +252,7 @@
           board.selectAll('.new-high-score').data([]).exit().remove();
         }, 1500);
       }
-    }
+    },
 
   };
 
@@ -268,6 +292,7 @@
     var x = d3.event.x;
     var y = d3.event.y;
 
+    // Keep player in bounds
     if(x > initialSettings.width){
       x = 690;
     }
@@ -281,8 +306,11 @@
       y = 10;
     }
 
-    app.listenForBulletTimeCollection(x,y);
+    // Update player x and y coordinates according to mouse drag
     player.attr({cx: x, cy: y});
+
+    // Listen for when player collides with green orb
+    app.listenForBulletTimeCollection(x,y);
   });
 
   var player = board.append('circle')
