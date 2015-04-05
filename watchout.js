@@ -2,6 +2,20 @@
 
 (function(){
 
+  var getScores = function() {
+    $('.user-list').empty();
+
+    $.ajax({
+      type: 'GET',
+      url: 'api/scores',
+      success: function(data) {
+        data.forEach(function(item){
+          $('.user-list').append('<li>' + item['username'] + ' - ' + item['score'] + '</li>');
+        });
+      }
+    });
+  };
+
   /*
   *
   * Initial variables
@@ -125,6 +139,19 @@
       if(initialSettings.currentScore > initialSettings.highScore){
         initialSettings.highScore = initialSettings.currentScore;
         d3.select('.high span').text(initialSettings.highScore);
+
+        if(initialSettings.currentScore > 50){
+          var username = $('.username').val();
+          if(username.length){
+            $.post('api/scores',
+              {username: username, score: initialSettings.currentScore},
+              function(data) {
+                getScores();
+              }
+            );
+          }
+        }
+
       }
     },
 
@@ -354,7 +381,8 @@
 
   // Listen for green orb collection and losing to update stepInterval
   app.listenForStepIntervalChanges(initialSettings.stepInterval);
+  getScores();
 
-
+  
 })();
 

@@ -9,8 +9,11 @@
       <div class="top-section"><h1>Avoider</h1>
       <h3>Kenny | Michael</h3>
       <p>Slow down enemies by collecting bulletTime orbs!</p> <div class="bullet-time"></div><p>See real-time data visulation below the board!</p></div>
+
+
       <div class="input-section">
-        <br>
+        <p class="small">enter username to submit high scores</p>
+        <input class="username" type="text" placeholder="username">
         <br>
         <div class="level-count">Level: <span>1</span></div>
         <div class="enemy-count"># of enemies: <span>7</span></div>
@@ -23,9 +26,17 @@
       <div class="enemy-speed">Enemy Speed: <span>100</span>%</div>
     </div>
     <div id="board"></div>
-    <div id="metrics">
-      <h1 class="metrics-header">Game Data</h1>
+    <div class="bottom-container">
+      <div class="user-scores">
+        <h2>High Scores</h2>
+        <ol class="user-list">
+        </ol>
+      </div>
+      <div id="metrics">
+        <h2 class="metrics-header">Game Data</h2>
+      </div>
     </div>
+    <script src='bower_components/jquery/dist/jquery.js'></script>  
     <script src="d3.js" charset="utf-8"></script>
     <script src='dashboard.js'></script>
     <script src='watchout.js'></script>
