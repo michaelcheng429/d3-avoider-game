@@ -336,42 +336,6 @@
   // Initialize green orb (bulletTime)
   var bulletTime = app.createBulletTime();
 
-  // Initialize mouse drag for player
-  var drag = d3.behavior.drag().on('drag', function(){
-    var x = d3.event.x;
-    var y = d3.event.y;
-
-    // Keep player in bounds
-    if(x > initialSettings.width){
-      x = 690;
-    }
-    if(x < 0){
-      x = 10;
-    }
-    if(y > initialSettings.height){
-      y = 390;
-    }
-    if(y < 0){
-      y = 10;
-    }
-
-    // Update player x and y coordinates according to mouse drag
-    player.attr({cx: x, cy: y});
-
-    // Listen for when player collides with green orb
-    app.listenForBulletTimeCollection(x,y);
-  });
-
-  // Initialize player
-  // var player = board.append('circle')
-  //                 .attr({
-  //                   cx: '350',
-  //                   cy: '200',
-  //                   r: '10'
-  //                 })
-  //                 .style('fill', 'steelblue')
-  //                 .call(drag);
-
   var levelInterval = setInterval(function(){
     app.increaseLevel();
   }, 10000);
@@ -383,6 +347,7 @@
   app.listenForStepIntervalChanges(initialSettings.stepInterval);
   getScores();
 
+  // Initialize player
   var player = board.selectAll('.mouse')
     .data([1]).enter().append('circle')
     .attr({
@@ -393,6 +358,7 @@
     })
     .style('fill', 'steelblue')
 
+  // Move player with mousemove
   board.on('mousemove', function() {
     var loc = d3.mouse(this);
 
@@ -418,9 +384,44 @@
       cy: y,
       cx: x
     });
-    
+
     app.listenForBulletTimeCollection(x,y);
   });
   
 })();
 
+// // REPLACED - Initialize mouse drag for player
+  // var drag = d3.behavior.drag().on('drag', function(){
+  //   var x = d3.event.x;
+  //   var y = d3.event.y;
+
+  //   // Keep player in bounds
+  //   if(x > initialSettings.width){
+  //     x = 690;
+  //   }
+  //   if(x < 0){
+  //     x = 10;
+  //   }
+  //   if(y > initialSettings.height){
+  //     y = 390;
+  //   }
+  //   if(y < 0){
+  //     y = 10;
+  //   }
+
+  //   // Update player x and y coordinates according to mouse drag
+  //   player.attr({cx: x, cy: y});
+
+  //   // Listen for when player collides with green orb
+  //   app.listenForBulletTimeCollection(x,y);
+  // });
+
+  // Initialize player
+  // var player = board.append('circle')
+  //                 .attr({
+  //                   cx: '350',
+  //                   cy: '200',
+  //                   r: '10'
+  //                 })
+  //                 .style('fill', 'steelblue')
+  //                 .call(drag);
