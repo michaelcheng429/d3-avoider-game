@@ -354,7 +354,7 @@
       class: 'mouse',
       cx: '350',
       cy: '200',
-      r: '10'
+      r: '10',
     })
     .style('fill', 'steelblue')
 
