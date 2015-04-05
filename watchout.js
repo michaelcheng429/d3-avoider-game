@@ -363,14 +363,14 @@
   });
 
   // Initialize player
-  var player = board.append('circle')
-                  .attr({
-                    cx: '350',
-                    cy: '200',
-                    r: '10'
-                  })
-                  .style('fill', 'steelblue')
-                  .call(drag);
+  // var player = board.append('circle')
+  //                 .attr({
+  //                   cx: '350',
+  //                   cy: '200',
+  //                   r: '10'
+  //                 })
+  //                 .style('fill', 'steelblue')
+  //                 .call(drag);
 
   var levelInterval = setInterval(function(){
     app.increaseLevel();
@@ -383,6 +383,44 @@
   app.listenForStepIntervalChanges(initialSettings.stepInterval);
   getScores();
 
+  var player = board.selectAll('.mouse')
+    .data([1]).enter().append('circle')
+    .attr({
+      class: 'mouse',
+      cx: '350',
+      cy: '200',
+      r: '10'
+    })
+    .style('fill', 'steelblue')
+
+  board.on('mousemove', function() {
+    var loc = d3.mouse(this);
+
+    mouse = {x:loc[0], y:loc[1]};
+    var x = mouse.x;
+    var y = mouse.y;
+
+    // Keep player in bounds
+    if(x > initialSettings.width){
+      x = 690;
+    }
+    if(x < 0){
+      x = 10;
+    }
+    if(y > initialSettings.height){
+      y = 390;
+    }
+    if(y < 0){
+      y = 10;
+    }
+
+    d3.select('.mouse').attr({
+      cy: y,
+      cx: x
+    });
+    
+    app.listenForBulletTimeCollection(x,y);
+  });
   
 })();
 
