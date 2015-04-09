@@ -10,6 +10,7 @@
       url: 'api/scores',
       success: function(data) {
         data.forEach(function(item){
+          item['username'] = _.escape(item['username']);
           $('.user-list').append('<li>' + item['username'] + ' - ' + item['score'] + '</li>');
         });
       }
