@@ -10,7 +10,7 @@
       url: 'api/scores',
       success: function(data) {
         data.forEach(function(item){
-          item['username'] = _.escape(item['username']);
+          item['username'] = app.escapeHtml(item['username']);
           $('.user-list').append('<li>' + item['username'] + ' - ' + item['score'] + '</li>');
         });
       }
@@ -314,6 +314,20 @@
       enemies = board.selectAll('.enemy');
       initialSettings.stepInterval = initialSettings.stepInterval * 0.75;
       app.updateEnemySpeedElement();
+    },
+
+    escapeHtml: function (string) {
+      var entityMap = {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': '&quot;',
+        "'": '&#39;',
+        "/": '&#x2F;'
+      };
+      return String(string).replace(/[&<>"'\/]/g, function (s) {
+        return entityMap[s];
+      });
     }
 
   };
